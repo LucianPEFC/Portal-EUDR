@@ -1,4 +1,3 @@
-<button onclick="window.location.href='add-apv.html'">Adaugă APV nou</button>
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -8,8 +7,30 @@
 </head>
 <body>
   <h2>Lista APV-uri</h2>
+
+  <!-- 🔍 FILTRE -->
+  <div>
+    <label for="filtruSpecie">Specie:</label>
+    <select id="filtruSpecie">
+      <option value="">Toate</option>
+      <option value="Fag">Fag</option>
+      <option value="Molid">Molid</option>
+      <option value="Stejar">Stejar</option>
+    </select>
+
+    <label for="filtruPEFC">Certificat PEFC:</label>
+    <select id="filtruPEFC">
+      <option value="">Toate</option>
+      <option value="true">Da</option>
+      <option value="false">Nu</option>
+    </select>
+
+    <button id="aplicaFiltre">Aplică filtre</button>
+  </div>
+
   <button onclick="window.location.href='add-apv.html'">Adaugă APV</button>
   <button onclick="logout()">Logout</button>
+
   <div id="apvList"><p>Se încarcă APV-urile...</p></div>
 </body>
 </html>
