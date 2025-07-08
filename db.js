@@ -32,6 +32,7 @@ async function afiseazaAPVuri() {
   const list = document.getElementById("apvList");
   list.innerHTML = "<p>Se încarcă APV-urile...</p>";
 
+  const numarFiltru = document.getElementById("filtruNumarAPV").value.toLowerCase();
   const specieFiltru = document.getElementById("filtruSpecie").value;
   const pefcFiltru = document.getElementById("filtruPEFC").value;
 
@@ -41,12 +42,16 @@ async function afiseazaAPVuri() {
 
   querySnapshot.forEach((doc) => {
     const d = doc.data();
+
+    const corespundeNumar = !numarFiltru || d.numarAPV.toLowerCase().includes(numarFiltru);
     const corespundeSpecie = !specieFiltru || d.specie === specieFiltru;
     const corespundePEFC = pefcFiltru === "" || String(d.certificatPEFC) === pefcFiltru;
 
-    if (corespundeSpecie && corespundePEFC) {
+    if (corespundeNumar && corespundeSpecie && corespundePEFC) {
       count++;
-      output += `<li class='list-group-item'><strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA} – PEFC: ${d.certificatPEFC ? 'DA' : 'NU'}</li>`;
+      output += `<li class='list-group-item'>
+        <strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA}, GPS: ${d.gps || '-'} – PEFC: ${d.certificatPEFC ? 'DA' : 'NU'}
+      </li>`;
     }
   });
 
