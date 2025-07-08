@@ -25,12 +25,20 @@ document.getElementById("apvForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const status = document.getElementById("status");
 
+  const gpsInput = document.getElementById("gps").value.trim();
+  const gpsRegex = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
+
+  if (gpsInput && !gpsRegex.test(gpsInput)) {
+    status.textContent = "⚠️ Format invalid GPS. Exemplu corect: 45.7621, 24.1234";
+    return;
+  }
+
   const data = {
     numarAPV: document.getElementById("numarAPV").value,
     specie: document.getElementById("specie").value,
     volum: parseFloat(document.getElementById("volum").value),
     UA: document.getElementById("UA").value,
-    gps: document.getElementById("gps").value,
+    gps: gpsInput,
     certificatPEFC: document.getElementById("certificatPEFC").checked
   };
 
