@@ -21,17 +21,39 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const list = document.getElementById("apvList");
-  list.innerHTML = "<ul>";
-
-  const querySnapshot = await getDocs(collection(db, "apvuri"));
-  querySnapshot.forEach((doc) => {
-    const d = doc.data();
-    list.innerHTML += `<li><strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA}</li>`;
+  document.getElementById("aplicaFiltre").addEventListener("click", () => {
+    afiseazaAPVuri();
   });
 
-  list.innerHTML += "</ul>";
+  afiseazaAPVuri();
 });
+
+async function afiseazaAPVuri() {
+  const list = document.getElementById("apvList");
+  list.innerHTML = "<p>Se încarcă APV-urile...</p>";
+
+  const specieFiltru = document.getElementById("filtruSpecie").value;
+  const pefcFiltru = document.getElementById("filtruPEFC").value;
+
+  const querySnapshot = await getDocs(collection(db, "apvuri"));
+  let count = 0;
+  let output = "<ul>";
+
+  querySnapshot.forEach((doc) => {
+    const d = doc.data();
+
+    const corespundeSpecie = !specieFiltru || d.specie === specieFiltru;
+    const corespundePEFC = pefcFiltru === "" || String(d.certificatPEFC) === pefcFiltru;
+
+    if (corespundeSpecie && corespundePEFC) {
+      count++;
+      output += `<li><strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA} – PEFC: ${d.certificatPEFC ? 'DA' : 'NU'}</li>`;
+    }
+  });
+
+  output += "</ul>";
+  list.innerHTML = count > 0 ? output : "<p>Nicio înregistrare găsită cu filtrele selectate.</p>";
+}
 
 window.logout = function () {
   signOut(auth).then(() => {
