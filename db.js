@@ -17,16 +17,13 @@ const db = getFirestore(app);
 
 let map;
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "index.html";
     return;
   }
 
-  document.getElementById("aplicaFiltre").addEventListener("click", () => {
-    afiseazaAPVuri();
-  });
-
+  document.getElementById("aplicaFiltre").addEventListener("click", afiseazaAPVuri);
   afiseazaAPVuri();
 });
 
@@ -43,7 +40,7 @@ async function afiseazaAPVuri() {
   let output = "<ul class='list-group'>";
   let count = 0;
 
-  // Inițializare hartă (doar o dată)
+  // Inițializare hartă o singură dată
   if (!map) {
     map = L.map('map').setView([45.9432, 24.9668], 6); // România
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -51,7 +48,7 @@ async function afiseazaAPVuri() {
     }).addTo(map);
   }
 
-  // Eliminare markere vechi
+  // Șterge markere vechi
   map.eachLayer((layer) => {
     if (layer instanceof L.Marker) {
       map.removeLayer(layer);
@@ -60,15 +57,15 @@ async function afiseazaAPVuri() {
 
   querySnapshot.forEach((doc) => {
     const d = doc.data();
-    const gpsMatch = !gpsFiltru || (d.gps && d.gps.includes(gpsFiltru));
+    const gps = d.gps || "";
+    const gpsMatch = !gpsFiltru || gps.includes(gpsFiltru);
     const nrMatch = !numarFiltru || d.numarAPV.toLowerCase().includes(numarFiltru);
     const specieMatch = !specieFiltru || d.specie === specieFiltru;
     const pefcMatch = pefcFiltru === "" || String(d.certificatPEFC) === pefcFiltru;
 
     if (gpsMatch && nrMatch && specieMatch && pefcMatch) {
       count++;
-
-      const gpsText = d.gps ? `, GPS: ${d.gps}` : '';
+      const gpsText = gps ? `, GPS: ${gps}` : "";
       const liId = `apv-${doc.id}`;
 
       output += `
@@ -77,9 +74,9 @@ async function afiseazaAPVuri() {
         </li>
       `;
 
-      // Adăugăm marker pe hartă dacă avem coordonate
-      if (d.gps) {
-        const [lat, lng] = d.gps.split(",").map(x => parseFloat(x.trim()));
+      // Adaugă marker pe hartă dacă există GPS valid
+      if (gps.includes(",")) {
+        const [lat, lng] = gps.split(",").map(x => parseFloat(x.trim()));
         if (!isNaN(lat) && !isNaN(lng)) {
           const marker = L.marker([lat, lng]).addTo(map).bindPopup(`<strong>${d.numarAPV}</strong><br>${d.specie}, ${d.volum} mc`);
           marker._id = doc.id;
@@ -89,23 +86,21 @@ async function afiseazaAPVuri() {
   });
 
   output += "</ul>";
-  list.innerHTML = count > 0 ? output : "<p>Nicio înregistrare găsită.</p>";
+  list.innerHTML = count > 0 ? output : "<p class='text-muted'>Nicio înregistrare găsită.</p>";
 
-  // Click pe un APV din listă → centrează harta
+  // Eveniment click pe element din listă → centrează pe hartă
   querySnapshot.forEach((doc) => {
     const d = doc.data();
-    if (d.gps) {
-      const li = document.getElementById(`apv-${doc.id}`);
-      if (li) {
+    const li = document.getElementById(`apv-${doc.id}`);
+    if (li && d.gps && d.gps.includes(",")) {
+      const [lat, lng] = d.gps.split(",").map(x => parseFloat(x.trim()));
+      if (!isNaN(lat) && !isNaN(lng)) {
         li.addEventListener("click", () => {
-          const [lat, lng] = d.gps.split(",").map(x => parseFloat(x.trim()));
-          if (!isNaN(lat) && !isNaN(lng)) {
-            map.setView([lat, lng], 14);
-            L.popup()
-              .setLatLng([lat, lng])
-              .setContent(`<strong>${d.numarAPV}</strong><br>${d.specie}, ${d.volum} mc`)
-              .openOn(map);
-          }
+          map.setView([lat, lng], 15);
+          L.popup()
+            .setLatLng([lat, lng])
+            .setContent(`<strong>${d.numarAPV}</strong><br>${d.specie}, ${d.volum} mc`)
+            .openOn(map);
         });
       }
     }
