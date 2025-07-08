@@ -15,6 +15,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let map;
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
@@ -35,32 +37,33 @@ async function afiseazaAPVuri() {
   const numarFiltru = document.getElementById("filtruNumarAPV").value.toLowerCase();
   const specieFiltru = document.getElementById("filtruSpecie").value;
   const pefcFiltru = document.getElementById("filtruPEFC").value;
+  const gpsFiltru = document.getElementById("filtruGPS").value.trim();
 
   const querySnapshot = await getDocs(collection(db, "apvuri"));
-  let count = 0;
   let output = "<ul class='list-group'>";
+  let count = 0;
 
-  querySnapshot.forEach((doc) => {
-    const d = doc.data();
+  if (!map) {
+    map = L.map('map').setView([45.9432, 24.9668], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+  }
 
-    const corespundeNumar = !numarFiltru || d.numarAPV.toLowerCase().includes(numarFiltru);
-    const corespundeSpecie = !specieFiltru || d.specie === specieFiltru;
-    const corespundePEFC = pefcFiltru === "" || String(d.certificatPEFC) === pefcFiltru;
-
-    if (corespundeNumar && corespundeSpecie && corespundePEFC) {
-      count++;
-      output += `<li class='list-group-item'>
-        <strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA}, GPS: ${d.gps || '-'} – PEFC: ${d.certificatPEFC ? 'DA' : 'NU'}
-      </li>`;
+  map.eachLayer((layer) => {
+    if (layer instanceof L.Marker) {
+      map.removeLayer(layer);
     }
   });
 
-  output += "</ul>";
-  list.innerHTML = count > 0 ? output : "<p>Nicio înregistrare găsită.</p>";
-}
+  querySnapshot.forEach((doc) => {
+    const d = doc.data();
+    const gpsMatch = !gpsFiltru || (d.gps && d.gps.includes(gpsFiltru));
+    const nrMatch = !numarFiltru || d.numarAPV.toLowerCase().includes(numarFiltru);
+    const specieMatch = !specieFiltru || d.specie === specieFiltru;
+    const pefcMatch = pefcFiltru === "" || String(d.certificatPEFC) === pefcFiltru;
 
-window.logout = function () {
-  signOut(auth).then(() => {
-    window.location.href = "index.html";
-  });
-};
+    if (gpsMatch && nrMatch && specieMatch && pefcMatch) {
+      count++;
+      output += `<li class='list-group-item'>
+        <strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA}, GPS: ${d.gps || '-'} – PEFC: ${d
