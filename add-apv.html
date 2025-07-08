@@ -4,19 +4,44 @@
   <meta charset="UTF-8">
   <title>Adaugă APV</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <script type="module" src="add-apv.js"></script>
 </head>
 <body>
-  <h2>Formular APV nou</h2>
-  <form id="apvForm">
-    <input type="text" id="numarAPV" placeholder="Număr APV" required><br>
-    <input type="text" id="specie" placeholder="Specie" required><br>
-    <input type="number" id="volum" placeholder="Volum (mc)" required><br>
-    <input type="text" id="UA" placeholder="Unitate Administrativă" required><br>
-    <label><input type="checkbox" id="certificatPEFC"> Certificat PEFC</label><br><br>
-    <button type="submit">Salvează</button>
-  </form>
-  <p id="status"></p>
-  <button onclick="window.location.href='dashboard.html'">Înapoi</button>
+  <header class="pefc-header">
+    <div class="d-flex align-items-center">
+      <img src="pefc-logo.png" alt="PEFC Logo">
+      <span class="pefc-banner-title">Adaugă un APV</span>
+    </div>
+  </header>
+
+  <div class="container py-4">
+    <form id="apvForm">
+      <div class="mb-3">
+        <label class="form-label">Număr APV</label>
+        <input type="text" id="numarAPV" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Specie</label>
+        <input type="text" id="specie" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Volum (mc)</label>
+        <input type="number" id="volum" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Unitate Administrativă (UA)</label>
+        <input type="text" id="UA" class="form-control" required>
+      </div>
+      <div class="mb-3 form-check">
+        <input type="checkbox" id="certificatPEFC" class="form-check-input">
+        <label for="certificatPEFC" class="form-check-label">Certificat PEFC</label>
+      </div>
+      <button type="submit" class="btn btn-success">Salvează APV</button>
+    </form>
+    <p id="status" class="mt-3"></p>
+    <button class="btn btn-secondary mt-3" onclick="window.location.href='dashboard.html'">Înapoi</button>
+  </div>
 </body>
 </html>
