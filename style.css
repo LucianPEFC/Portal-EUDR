@@ -35,3 +35,6 @@ body {
   background-color: #6AAE1B;
   border-color: #6AAE1B;
 }
+.form-check-label {
+  margin-left: 0.5rem;
+}
