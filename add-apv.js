@@ -35,7 +35,7 @@ document.getElementById("apvForm").addEventListener("submit", async (e) => {
 
   try {
     await addDoc(collection(db, "apvuri"), data);
-    status.textContent = "APV salvat!";
+    status.textContent = "✅ APV salvat cu succes!";
     document.getElementById("apvForm").reset();
   } catch (error) {
     status.textContent = "Eroare: " + error.message;
