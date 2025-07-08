@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Adaugă APV</title>
+  <script type="module" src="add-apv.js"></script>
+</head>
+<body>
+  <h2>Formular APV nou</h2>
+  <form id="apvForm">
+    <input type="text" id="numarAPV" placeholder="Număr APV" required><br>
+    <input type="text" id="specie" placeholder="Specie" required><br>
+    <input type="number" id="volum" placeholder="Volum (mc)" required><br>
+    <input type="text" id="UA" placeholder="Unitate Administrativă" required><br>
+    <label><input type="checkbox" id="certificatPEFC"> Certificat PEFC</label><br><br>
+    <button type="submit">Salvează</button>
+  </form>
+  <p id="status"></p>
+  <button onclick="window.location.href='dashboard.html'">Înapoi</button>
+</body>
+</html>
