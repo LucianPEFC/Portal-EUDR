@@ -1,5 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -12,41 +11,23 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-  }
-});
-
-document.getElementById("apvForm").addEventListener("submit", async (e) => {
+document.getElementById("apvForm").addEventListener("submit", async function (e) {
   e.preventDefault();
-  const status = document.getElementById("status");
-
-  const gpsInput = document.getElementById("gps").value.trim();
-  const gpsRegex = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
-
-  if (gpsInput && !gpsRegex.test(gpsInput)) {
-    status.textContent = "⚠️ Format invalid GPS. Exemplu corect: 45.7621, 24.1234";
-    return;
-  }
-
   const data = {
     numarAPV: document.getElementById("numarAPV").value,
     specie: document.getElementById("specie").value,
-    volum: parseFloat(document.getElementById("volum").value),
-    UA: document.getElementById("UA").value,
-    gps: gpsInput,
-    certificatPEFC: document.getElementById("certificatPEFC").checked
+    volum: document.getElementById("volum").value,
+    ua: document.getElementById("ua").value,
+    pefc: document.getElementById("pefc").value,
+    gps: document.getElementById("gps").value
   };
-
   try {
     await addDoc(collection(db, "apvuri"), data);
-    status.textContent = "✅ APV salvat cu succes!";
-    document.getElementById("apvForm").reset();
+    alert("APV salvat cu succes!");
+    window.location.href = "dashboard.html";
   } catch (error) {
-    status.textContent = "Eroare: " + error.message;
+    alert("Eroare: " + error.message);
   }
 });
