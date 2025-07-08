@@ -4,48 +4,41 @@
   <meta charset="UTF-8">
   <title>Adaugă APV</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="add-apv.js"></script>
 </head>
 <body>
   <header class="pefc-header">
     <div class="d-flex align-items-center">
       <img src="pefc-logo.png" alt="PEFC Logo">
-      <span class="pefc-banner-title">Adaugă un APV</span>
+      <span class="pefc-banner-title">Adaugă APV</span>
     </div>
   </header>
 
   <div class="container py-4">
     <form id="apvForm">
       <div class="mb-3">
-        <label class="form-label">Număr APV</label>
-        <input type="text" id="numarAPV" class="form-control" required>
+        <label>Număr APV</label>
+        <input type="text" id="numar" class="form-control" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">Specie</label>
+        <label>Specie</label>
         <input type="text" id="specie" class="form-control" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">Volum (mc)</label>
-        <input type="number" id="volum" class="form-control" required>
+        <label>Certificat (da/nu)</label>
+        <input type="text" id="certificat" class="form-control" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">Unitate Administrativă (UA)</label>
-        <input type="text" id="UA" class="form-control" required>
+        <label>Coordonate GPS (lat, long)</label>
+        <input type="text" id="gps" class="form-control" readonly>
+        <div id="map"></div>
       </div>
-      <div class="mb-3">
-        <label class="form-label">Coordonate GPS</label>
-        <input type="text" id="gps" class="form-control" placeholder="Ex: 45.7621, 24.1234">
-      </div>
-      <div class="mb-3 form-check">
-        <input type="checkbox" id="certificatPEFC" class="form-check-input">
-        <label for="certificatPEFC" class="form-check-label">Certificat PEFC</label>
-      </div>
-      <button type="submit" class="btn btn-success">Salvează APV</button>
+      <button type="submit" class="btn btn-success">Salvează</button>
     </form>
-    <p id="status" class="mt-3"></p>
-    <button class="btn btn-secondary mt-3" onclick="window.location.href='dashboard.html'">Înapoi</button>
   </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script type="module" src="add-apv.js"></script>
 </body>
 </html>
