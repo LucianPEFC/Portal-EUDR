@@ -66,6 +66,16 @@
         });
       }
     });
+
+    // Validare format GPS
+    document.getElementById('apvForm').addEventListener('submit', function(e) {
+      const gps = document.getElementById('gps').value.trim();
+      const regex = /^-?\d{1,2}\.\d{4,10},\s*-?\d{1,3}\.\d{4,10}$/;
+      if (!regex.test(gps)) {
+        alert("Coordonatele GPS nu sunt în formatul corect (lat, long). Exemplu: 45.7621, 24.1234");
+        e.preventDefault();
+      }
+    });
   </script>
 </body>
 </html>
