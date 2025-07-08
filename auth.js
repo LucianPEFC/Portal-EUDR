@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
-// Noul config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBgqPMU0ijd6wfzaykW1GfaouV51DVpPjo",
   authDomain: "portal-eudr.firebaseapp.com",
