@@ -30,6 +30,7 @@ document.getElementById("apvForm").addEventListener("submit", async (e) => {
     specie: document.getElementById("specie").value,
     volum: parseFloat(document.getElementById("volum").value),
     UA: document.getElementById("UA").value,
+    gps: document.getElementById("gps").value,
     certificatPEFC: document.getElementById("certificatPEFC").checked
   };
 
