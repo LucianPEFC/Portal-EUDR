@@ -1,5 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -12,33 +11,48 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-  }
+// Inițializare hartă
+const map = L.map("map").setView([45.9432, 24.9668], 7);
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+  attribution: "&copy; Esri & contributors"
+}).addTo(map);
+
+// Marker inițial
+const marker = L.marker([45.9432, 24.9668], { draggable: true }).addTo(map);
+
+// Când markerul este mutat manual
+marker.on("dragend", function () {
+  const { lat, lng } = marker.getLatLng();
+  document.getElementById("gps").value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 });
 
-document.getElementById("apvForm").addEventListener("submit", async (e) => {
+// Când se dă click pe hartă
+map.on("click", function (e) {
+  marker.setLatLng(e.latlng);
+  document.getElementById("gps").value = `${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+});
+
+// Salvare în Firestore
+document.getElementById("apvForm").addEventListener("submit", async function (e) {
   e.preventDefault();
-  const status = document.getElementById("status");
 
-  const data = {
-    numarAPV: document.getElementById("numarAPV").value,
-    specie: document.getElementById("specie").value,
-    volum: parseFloat(document.getElementById("volum").value),
-    UA: document.getElementById("UA").value,
-    gps: document.getElementById("gps").value,
-    certificatPEFC: document.getElementById("certificatPEFC").checked
-  };
+  const gpsPattern = /^-?\d{1,2}\.\d{3,},\s?-?\d{1,3}\.\d{3,}$/;
+  const gps = document.getElementById("gps").value;
 
-  try {
-    await addDoc(collection(db, "apvuri"), data);
-    status.textContent = "✅ APV salvat cu succes!";
-    document.getElementById("apvForm").reset();
-  } catch (error) {
-    status.textContent = "Eroare: " + error.message;
+  if (gps && !gpsPattern.test(gps)) {
+    alert("Format GPS invalid. Exemplu corect: 46.123456, 24.654321");
+    return;
   }
+
+  await addDoc(collection(db, "apv"), {
+    numar: document.getElementById("numar").value,
+    specie: document.getElementById("specie").value,
+    certificat: document.getElementById("certificat").value,
+    gps
+  });
+
+  alert("APV salvat cu succes!");
+  window.location.href = "dashboard.html";
 });
