@@ -1,34 +1,32 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <title>Portal EUDR – Autentificare</title>
+  <meta charset="UTF-8">
+  <title>Portal EUDR – România</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="auth.js"></script>
 </head>
 <body>
   <header class="pefc-header">
-    <div class="d-flex align-items-center">
-      <img src="pefc-logo.png" alt="PEFC Logo">
-      <span class="pefc-banner-title">Portal EUDR – România</span>
-    </div>
+    <img src="pefc-logo.png" alt="PEFC Logo">
+    <span class="pefc-banner-title">Portal EUDR – România</span>
   </header>
+
   <div class="container py-5">
-    <h2 class="mb-4">🔐 Autentificare</h2>
-    <div class="card p-4 shadow-sm" style="max-width: 400px;">
+    <h1 class="mb-4">Autentificare</h1>
+    <form id="loginForm">
       <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="email" id="email" class="form-control" placeholder="email@exemplu.ro">
+        <label>Email</label>
+        <input type="email" id="email" class="form-control" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">Parolă</label>
-        <input type="password" id="password" class="form-control" placeholder="••••••••">
+        <label>Parolă</label>
+        <input type="password" id="password" class="form-control" required>
       </div>
-      <button onclick="login()" class="btn btn-primary w-100">Autentificare</button>
-      <p id="status" class="text-danger mt-3"></p>
-    </div>
+      <button type="submit" class="btn btn-success">Autentifică-te</button>
+    </form>
   </div>
+
+  <script type="module" src="auth.js"></script>
 </body>
 </html>
