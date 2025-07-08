@@ -37,22 +37,21 @@ async function afiseazaAPVuri() {
 
   const querySnapshot = await getDocs(collection(db, "apvuri"));
   let count = 0;
-  let output = "<ul>";
+  let output = "<ul class='list-group'>";
 
   querySnapshot.forEach((doc) => {
     const d = doc.data();
-
     const corespundeSpecie = !specieFiltru || d.specie === specieFiltru;
     const corespundePEFC = pefcFiltru === "" || String(d.certificatPEFC) === pefcFiltru;
 
     if (corespundeSpecie && corespundePEFC) {
       count++;
-      output += `<li><strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA} – PEFC: ${d.certificatPEFC ? 'DA' : 'NU'}</li>`;
+      output += `<li class='list-group-item'><strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA} – PEFC: ${d.certificatPEFC ? 'DA' : 'NU'}</li>`;
     }
   });
 
   output += "</ul>";
-  list.innerHTML = count > 0 ? output : "<p>Nicio înregistrare găsită cu filtrele selectate.</p>";
+  list.innerHTML = count > 0 ? output : "<p>Nicio înregistrare găsită.</p>";
 }
 
 window.logout = function () {
