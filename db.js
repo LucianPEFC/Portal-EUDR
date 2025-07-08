@@ -1,5 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -12,103 +11,74 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
+const apvList = document.getElementById("apvList");
+const map = L.map('map').setView([45.9432, 24.9668], 6);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '© Esri & contributors'
+}).addTo(map);
+const markerLayer = L.layerGroup().addTo(map);
 
-let map;
+const filters = {
+  specie: document.getElementById("filterSpecie"),
+  certificat: document.getElementById("filterCertificat"),
+  numar: document.getElementById("filterNumar"),
+  gps: document.getElementById("filterGPS")
+};
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
-
-  document.getElementById("aplicaFiltre").addEventListener("click", afiseazaAPVuri);
-  afiseazaAPVuri();
+Object.values(filters).forEach(input => {
+  input.addEventListener("input", loadData);
 });
 
-async function afiseazaAPVuri() {
-  const list = document.getElementById("apvList");
-  list.innerHTML = "<p>Se încarcă APV-urile...</p>";
-
-  const numarFiltru = document.getElementById("filtruNumarAPV").value.toLowerCase();
-  const specieFiltru = document.getElementById("filtruSpecie").value;
-  const pefcFiltru = document.getElementById("filtruPEFC").value;
-  const gpsFiltru = document.getElementById("filtruGPS").value.trim();
-
+async function loadData() {
+  apvList.innerHTML = "";
+  markerLayer.clearLayers();
   const querySnapshot = await getDocs(collection(db, "apvuri"));
-  let output = "<ul class='list-group'>";
-  let count = 0;
-
-  // Inițializare hartă o singură dată
-  if (!map) {
-    map = L.map('map').setView([45.9432, 24.9668], 6); // România
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: '© Esri, Maxar, Earthstar Geographics'
-    }).addTo(map);
-  }
-
-  // Șterge markere vechi
-  map.eachLayer((layer) => {
-    if (layer instanceof L.Marker) {
-      map.removeLayer(layer);
-    }
-  });
-
   querySnapshot.forEach((doc) => {
-    const d = doc.data();
-    const gps = d.gps || "";
-    const gpsMatch = !gpsFiltru || gps.includes(gpsFiltru);
-    const nrMatch = !numarFiltru || d.numarAPV.toLowerCase().includes(numarFiltru);
-    const specieMatch = !specieFiltru || d.specie === specieFiltru;
-    const pefcMatch = pefcFiltru === "" || String(d.certificatPEFC) === pefcFiltru;
+    const apv = doc.data();
+    const specie = apv.specie?.toLowerCase() || "";
+    const certificat = apv.pefc?.toLowerCase() || "";
+    const numar = apv.numarAPV?.toLowerCase() || "";
+    const gps = apv.gps?.toLowerCase() || "";
+    const passesFilters =
+      specie.includes(filters.specie.value.toLowerCase()) &&
+      certificat.includes(filters.certificat.value.toLowerCase()) &&
+      numar.includes(filters.numar.value.toLowerCase()) &&
+      gps.includes(filters.gps.value.toLowerCase());
 
-    if (gpsMatch && nrMatch && specieMatch && pefcMatch) {
-      count++;
-      const gpsText = gps ? `, GPS: ${gps}` : "";
-      const liId = `apv-${doc.id}`;
+    if (passesFilters) {
+      const col = document.createElement("div");
+      col.className = "col";
+      col.innerHTML = `
+        <div class="card apv-card" onclick="centerMap('${gps}')">
+          <div class="card-body">
+            <h5 class="card-title">${apv.numarAPV}</h5>
+            <p class="card-text">Specie: ${apv.specie} | Volum: ${apv.volum} mc</p>
+            <p class="card-text">Unitate amenajistică: ${apv.ua}</p>
+            <p class="card-text">Certificat PEFC: ${apv.pefc}</p>
+            ${gps ? `<p class="apv-gps">📍 Coordonate: ${gps}</p>` : ""}
+          </div>
+        </div>`;
+      apvList.appendChild(col);
 
-      output += `
-        <li class='list-group-item list-group-item-action' id="${liId}" style="cursor: pointer;">
-          <strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA}${gpsText} – PEFC: ${d.certificatPEFC ? 'DA' : 'NU'}
-        </li>
-      `;
-
-      // Adaugă marker pe hartă dacă există GPS valid
       if (gps.includes(",")) {
-        const [lat, lng] = gps.split(",").map(x => parseFloat(x.trim()));
+        const [lat, lng] = gps.split(/,\s*/).map(Number);
         if (!isNaN(lat) && !isNaN(lng)) {
-          const marker = L.marker([lat, lng]).addTo(map).bindPopup(`<strong>${d.numarAPV}</strong><br>${d.specie}, ${d.volum} mc`);
-          marker._id = doc.id;
+          const marker = L.marker([lat, lng]).addTo(markerLayer);
+          marker.bindPopup(`${apv.numarAPV} – ${apv.specie}`);
         }
-      }
-    }
-  });
-
-  output += "</ul>";
-  list.innerHTML = count > 0 ? output : "<p class='text-muted'>Nicio înregistrare găsită.</p>";
-
-  // Eveniment click pe element din listă → centrează pe hartă
-  querySnapshot.forEach((doc) => {
-    const d = doc.data();
-    const li = document.getElementById(`apv-${doc.id}`);
-    if (li && d.gps && d.gps.includes(",")) {
-      const [lat, lng] = d.gps.split(",").map(x => parseFloat(x.trim()));
-      if (!isNaN(lat) && !isNaN(lng)) {
-        li.addEventListener("click", () => {
-          map.setView([lat, lng], 15);
-          L.popup()
-            .setLatLng([lat, lng])
-            .setContent(`<strong>${d.numarAPV}</strong><br>${d.specie}, ${d.volum} mc`)
-            .openOn(map);
-        });
       }
     }
   });
 }
 
-window.logout = function () {
-  signOut(auth).then(() => {
-    window.location.href = "index.html";
-  });
+window.centerMap = function (gps) {
+  if (gps.includes(",")) {
+    const [lat, lng] = gps.split(/,\s*/).map(Number);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      map.setView([lat, lng], 14);
+    }
+  }
 };
+
+loadData();
