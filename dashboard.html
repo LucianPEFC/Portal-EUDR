@@ -27,7 +27,11 @@
 
     <div class="card mb-4 p-3">
       <div class="row g-3 align-items-end">
-        <div class="col-md-4">
+        <div class="col-md-3">
+          <label for="filtruNumarAPV" class="form-label">Număr APV</label>
+          <input type="text" id="filtruNumarAPV" class="form-control" placeholder="Ex: APV-123">
+        </div>
+        <div class="col-md-3">
           <label for="filtruSpecie" class="form-label">Specie</label>
           <select id="filtruSpecie" class="form-select">
             <option value="">Toate</option>
@@ -36,7 +40,7 @@
             <option value="Stejar">Stejar</option>
           </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label for="filtruPEFC" class="form-label">Certificat PEFC</label>
           <select id="filtruPEFC" class="form-select">
             <option value="">Toate</option>
@@ -44,7 +48,7 @@
             <option value="false">Nu</option>
           </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <button id="aplicaFiltre" class="btn btn-primary w-100">Aplică filtre</button>
         </div>
       </div>
