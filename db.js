@@ -28,30 +28,45 @@ onAuthStateChanged(auth, async (user) => {
   afiseazaAPVuri();
 });
 
+const map = L.map("map").setView([45.9432, 24.9668], 6);
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+  attribution: "&copy; Esri & contributors"
+}).addTo(map);
+
 async function afiseazaAPVuri() {
   const list = document.getElementById("apvList");
   list.innerHTML = "<p>Se încarcă APV-urile...</p>";
 
   const numarFiltru = document.getElementById("filtruNumarAPV").value.toLowerCase();
-  const specieFiltru = document.getElementById("filtruSpecie").value;
-  const pefcFiltru = document.getElementById("filtruPEFC").value;
+  const specieFiltru = document.getElementById("filtruSpecie").value.toLowerCase();
+  const pefcFiltru = document.getElementById("filtruPEFC").value.toLowerCase();
+  const gpsFiltru = document.getElementById("filtruGPS").value.toLowerCase();
 
   const querySnapshot = await getDocs(collection(db, "apvuri"));
-  let count = 0;
   let output = "<ul class='list-group'>";
+  let count = 0;
 
   querySnapshot.forEach((doc) => {
     const d = doc.data();
 
-    const corespundeNumar = !numarFiltru || d.numarAPV.toLowerCase().includes(numarFiltru);
-    const corespundeSpecie = !specieFiltru || d.specie === specieFiltru;
-    const corespundePEFC = pefcFiltru === "" || String(d.certificatPEFC) === pefcFiltru;
+    const corespunde =
+      (!numarFiltru || d.numarAPV.toLowerCase().includes(numarFiltru)) &&
+      (!specieFiltru || d.specie.toLowerCase().includes(specieFiltru)) &&
+      (!pefcFiltru || String(d.certificatPEFC).toLowerCase().includes(pefcFiltru)) &&
+      (!gpsFiltru || (d.gps && d.gps.toLowerCase().includes(gpsFiltru)));
 
-    if (corespundeNumar && corespundeSpecie && corespundePEFC) {
+    if (corespunde) {
       count++;
       output += `<li class='list-group-item'>
         <strong>${d.numarAPV}</strong> – ${d.specie}, ${d.volum} mc, UA ${d.UA}, GPS: ${d.gps || '-'} – PEFC: ${d.certificatPEFC ? 'DA' : 'NU'}
       </li>`;
+
+      if (d.gps) {
+        const [lat, lng] = d.gps.split(',').map(c => parseFloat(c.trim()));
+        if (!isNaN(lat) && !isNaN(lng)) {
+          L.marker([lat, lng]).addTo(map).bindPopup(`<strong>${d.numarAPV}</strong>`);
+        }
+      }
     }
   });
 
